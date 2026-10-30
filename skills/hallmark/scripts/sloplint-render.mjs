@@ -673,7 +673,7 @@ function observe(checkFold, meta) {
 // F26: a paragraph whose last line is one short word (a straggler), or a head of two or three lines whose last line is a stub
 function lineBreaks() {
   const out = [];
-  const vis = (el) => { const s = getComputedStyle(el); if (s.display === 'none' || s.visibility === 'hidden' || parseFloat(s.opacity) === 0) return false; const r = el.getBoundingClientRect(); return r.width > 1 && r.height > 1; };
+  const vis = (el) => { const s = getComputedStyle(el); if (el.checkVisibility && !el.checkVisibility()) return false; if (s.display === 'none' || s.visibility === 'hidden' || parseFloat(s.opacity) === 0) return false; const r = el.getBoundingClientRect(); return r.width > 1 && r.height > 1; };
   const lines = (el) => {
     const rows = [];
     const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
@@ -710,7 +710,7 @@ function observeSpace(atLaptop, heroOnly, heroPosture, photoShape, job) {
   const out = [];
   const push = (gate, grade, evidence, fix) => out.push({ gate: String(gate), grade, evidence, fix });
   const vw = window.innerWidth, vh = window.innerHeight;
-  const vis = (el) => { const s = getComputedStyle(el); if (s.display === 'none' || s.visibility === 'hidden' || parseFloat(s.opacity) === 0) return false; const r = el.getBoundingClientRect(); return r.width > 1 && r.height > 1; };
+  const vis = (el) => { const s = getComputedStyle(el); if (el.checkVisibility && !el.checkVisibility()) return false; if (s.display === 'none' || s.visibility === 'hidden' || parseFloat(s.opacity) === 0) return false; const r = el.getBoundingClientRect(); return r.width > 1 && r.height > 1; };
   const abs = (el) => { const r = el.getBoundingClientRect(); return { top: r.top + scrollY, bottom: r.bottom + scrollY, left: r.left, right: r.right, w: r.width, h: r.height }; };
   let secs = [...document.querySelectorAll('section, main > div, footer')].filter((s) => vis(s) && s.getBoundingClientRect().height > 40);
   secs = secs.filter((s) => !secs.some((o) => o !== s && o.contains(s)));
@@ -1015,7 +1015,7 @@ function observeSpace(atLaptop, heroOnly, heroPosture, photoShape, job) {
 function observeQuality(scope) {
   const out = [];
   const push = (gate, grade, evidence, fix) => out.push({ gate: String(gate), grade, evidence, fix });
-  const vis = (el) => { const cs = getComputedStyle(el); if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) return false; const r = el.getBoundingClientRect(); return r.width > 1 && r.height > 1; };
+  const vis = (el) => { const cs = getComputedStyle(el); if (el.checkVisibility && !el.checkVisibility()) return false; if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) return false; const r = el.getBoundingClientRect(); return r.width > 1 && r.height > 1; };
   const name = (el) => el.tagName.toLowerCase() + (el.classList && el.classList[0] ? '.' + el.classList[0] : '');
   const abs = (r) => ({ top: r.top + scrollY, bottom: r.bottom + scrollY, left: r.left, right: r.right });
   const clear = (c) => /^(transparent|rgba\(0, 0, 0, 0\))$/.test(c);
@@ -1194,7 +1194,7 @@ function observeQuality(scope) {
 
 async function observeOcclusion() {
   const out = [];
-  const vis = (el) => { const cs = getComputedStyle(el); if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) return false; const r = el.getBoundingClientRect(); return r.width > 3 && r.height > 3; };
+  const vis = (el) => { const cs = getComputedStyle(el); if (el.checkVisibility && !el.checkVisibility()) return false; if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) return false; const r = el.getBoundingClientRect(); return r.width > 3 && r.height > 3; };
   const pinned = (el) => { for (let p = el; p && p !== document.body; p = p.parentElement) if (/fixed|sticky/.test(getComputedStyle(p).position)) return true; return false; };
   const unseen = (el) => { const cs = getComputedStyle(el); return parseFloat(cs.opacity) < 0.05 || (/^(transparent|rgba\(0, 0, 0, 0\))$/.test(cs.backgroundColor) && cs.backgroundImage === 'none' && !(el.innerText || '').trim() && !/^(IMG|svg|CANVAS|VIDEO|PICTURE)$/.test(el.tagName) && !el.querySelector('img, svg, canvas, video')); };
   const runs = [];

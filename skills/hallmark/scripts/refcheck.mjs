@@ -321,6 +321,21 @@ if (existsSync(keptDir)) {
   } finally { rmSync(tmp, { recursive: true, force: true }); }
 }
 
+// The rendered pass reads what a reader sees: text folded inside a closed <details> is not on screen (Chromium hides it with content-visibility: hidden).
+const renderJson = (t) => { const r = spawnSync(process.execPath, [join(ROOT, 'scripts', 'sloplint.mjs'), t, '--render', '--genre', 'modern-minimal', '--scope', 'page', '--json'], { encoding: 'utf8' }); try { return JSON.parse(r.stdout); } catch { return null; } };
+const folded = [
+  ['details-closed', (j) => !j.findings.some((x) => x.gate === '58' && /words on one screen/.test(x.evidence)), 'gate 58 must not count the words folded in a closed <details>'],
+  ['details-open', (j) => j.findings.some((x) => x.gate === '58' && x.grade === 'FAIL' && /words on one screen/.test(x.evidence)), 'gate 58 must FAIL on the same words once the <details> is open'],
+];
+for (const [name, ok, msg] of existsSync(FIX) ? folded : []) {
+  const target = join(FIX, name);
+  if (!existsSync(target)) { add('error', target, 1, 'fixture', 'missing'); continue; }
+  const j = renderJson(target);
+  if (!j) add('error', target, 1, 'fixture', 'sloplint --render did not run on this fixture');
+  else if (j.summary.render !== 'ran') add('warn', target, 1, 'fixture', 'rendered pass skipped (no Chrome or puppeteer-core); set CHROME_PATH and HALLMARK_PUPPETEER to check it');
+  else if (!ok(j)) add('error', target, 1, 'fixture', msg);
+}
+
 const REPO = resolve(ROOT, '..', '..');
 const pkgFile = join(REPO, 'package.json');
 if (existsSync(pkgFile)) {
